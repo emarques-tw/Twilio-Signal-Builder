@@ -1,6 +1,6 @@
-# Twilio-Signal-Builder — Funko MX Operator Console
+# Twilio-Signal-Builder — Builder MX Operator Console
 
-Static React + Twilio Paste UI for advancing Funko MX orders through their
+Static React + Twilio Paste UI for advancing Builder MX orders through their
 state machine. Hosted on GitHub Pages, calls two Twilio Functions.
 
 ## Local development
