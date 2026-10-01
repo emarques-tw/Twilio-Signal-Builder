@@ -29,7 +29,7 @@ type Props = {
   onActionError: (message: string) => void;
 };
 
-const ALL_STATES = ["Ordered", "Selecting", "Building", "Built"] as const;
+const ALL_STATES = ["Ordered", "Selecting", "Building", "Built", "Delivered"] as const;
 type StateName = (typeof ALL_STATES)[number];
 
 const STATUS_VARIANT: Record<string, "neutral" | "info" | "warning" | "success"> = {
@@ -37,13 +37,15 @@ const STATUS_VARIANT: Record<string, "neutral" | "info" | "warning" | "success">
   Selecting: "info",
   Building: "warning",
   Built: "success",
+  Delivered: "success",
 };
 
 const NEXT_ACTION: Record<string, { label: string; target: TargetState } | null> = {
   Ordered: { label: "Mover a Selecting", target: "Selecting" },
   Selecting: { label: "Mover a Building", target: "Building" },
   Building: { label: "Mover a Built", target: "Built" },
-  Built: null,
+  Built: { label: "Marcar como Delivered", target: "Delivered" },
+  Delivered: null,
 };
 
 function formatDate(iso?: string): string {
@@ -127,7 +129,7 @@ export function OrderTable({
     order: OrderRecord,
     action: { label: string; target: TargetState }
   ) => {
-    if (action.target === "Built") {
+    if (action.target === "Built" || action.target === "Delivered") {
       setSelected({ order, target: action.target, label: action.label });
       setIsModalOpen(true);
       return;
@@ -263,15 +265,26 @@ export function OrderTable({
       >
         <ModalHeader>
           <ModalHeading as="h3" id="advance-modal-heading">
-            Confirmar entrega del Builder
+            {selected?.target === "Delivered"
+              ? "Confirmar entrega al cliente"
+              : "Confirmar Builder listo"}
           </ModalHeading>
         </ModalHeader>
         <ModalBody>
-          Vas a marcar la orden #{selected?.order.fields.OrderId} como{" "}
-          <strong>Built</strong>. Se enviará un WhatsApp al cliente
-          avisándole que su Builder está listo, y vendrá a recogerlo
-          contigo. Confirma solo si tienes el Builder físicamente listo
-          para entregar.
+          {selected?.target === "Delivered" ? (
+            <>
+              Vas a marcar la orden #{selected?.order.fields.OrderId} como{" "}
+              <strong>Delivered</strong>. Se enviará un WhatsApp al cliente
+              confirmando la entrega. Confirma solo si ya recibió su Builder.
+            </>
+          ) : (
+            <>
+              Vas a marcar la orden #{selected?.order.fields.OrderId} como{" "}
+              <strong>Built</strong>. Se enviará un WhatsApp al cliente
+              avisándole que su Builder está listo para recoger. Confirma solo
+              si tienes el Builder físicamente listo para entregar.
+            </>
+          )}
         </ModalBody>
         <ModalFooter>
           <ModalFooterActions>
@@ -279,7 +292,7 @@ export function OrderTable({
               Cancelar
             </Button>
             <Button variant="primary" onClick={confirmAdvance} loading={busy}>
-              Confirmar
+              {selected?.target === "Delivered" ? "Confirmar entrega" : "Confirmar"}
             </Button>
           </ModalFooterActions>
         </ModalFooter>

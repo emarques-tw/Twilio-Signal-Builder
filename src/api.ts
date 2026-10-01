@@ -2,7 +2,7 @@ export type OrderRecord = {
   id: string;
   fields: {
     OrderId?: number;
-    Status?: "Ordered" | "Selecting" | "Building" | "Built";
+    Status?: "Ordered" | "Selecting" | "Building" | "Built" | "Delivered";
     WhatsAppAddress?: string;
     Genero?: string;
     Cuerpo?: string;
@@ -18,6 +18,7 @@ export type OrderRecord = {
     SeleccionSentAt?: string;
     EnsambleSentAt?: string;
     ListoSentAt?: string;
+    EntregadoSentAt?: string;
     LastError?: string;
   };
 };
@@ -76,7 +77,7 @@ export async function listOrders(): Promise<OrderRecord[]> {
   return body.records;
 }
 
-export type TargetState = "Selecting" | "Building" | "Built";
+export type TargetState = "Selecting" | "Building" | "Built" | "Delivered";
 
 export type AdvanceResult = {
   ok: true;
